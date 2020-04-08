@@ -82,13 +82,14 @@ let g:hl_group_to_hi_link = {
       \}
 
 
-" Connect to hl_server
-let g:hl_server_channel = ch_open(g:hl_server_addr, {"mode": "json", "callback": "hl#MissedMsgCallback"})
-
-func hl#TryConnect()
-  if ch_status(g:hl_server_channel) != "open"
-    let g:hl_server_channel = ch_open(g:hl_server_addr, {"mode": "json", "callback": "hl#MissedMsgCallback"})
+func hl#GetConnect()
+  if exists("w:hl_server_channel") == 0 ||
+        \ ch_status(w:hl_server_channel) != "open"
+    let w:hl_server_channel = ch_open(g:hl_server_addr,
+          \ {"mode": "json", "callback": "hl#MissedMsgCallback"})
   endif
+
+  return w:hl_server_channel
 endfunc
 
 
@@ -136,7 +137,8 @@ func hl#HighlightCallback(channel, msg)
 
     if empty(l:hi_link) == 0
       for l:location in l:locations
-        let l:match = matchaddpos(l:hi_link, [l:location], 0, -1, {"window": l:win_id})
+        let l:match = matchaddpos(l:hi_link, [l:location], 0, -1,
+              \ {"window": l:win_id})
         if l:match != -1 " otherwise invalid match
           call add(w:matches, l:match)
         endif
@@ -150,7 +152,9 @@ func hl#GetCompilationFlags()
   let l:config_file = findfile(".color_coded", ".;")
   if empty(l:config_file) == 0
     let l:flags = readfile(l:config_file)
-    call add(l:flags, "-I" . expand("%:p:h")) " also add current dir as include path
+
+    " also add current dir as include path
+    call add(l:flags, "-I" . expand("%:p:h"))
 
     return l:flags
   end
@@ -158,7 +162,7 @@ func hl#GetCompilationFlags()
   return []
 endfunc
 
-func hl#SendRequest(win_id, buf_type)
+func hl#SendRequest(win_id, buf_type, channel)
   let l:buf_body = join(getline(1, "$"), "\n")
 
   let l:compile_flags = hl#GetCompilationFlags()
@@ -170,16 +174,18 @@ func hl#SendRequest(win_id, buf_type)
   let l:request["buf_body"] =   l:buf_body
   let l:request["additional_info"] = join(l:compile_flags, "\n")
 
-  call ch_sendexpr(g:hl_server_channel, l:request, {"callback": "hl#HighlightCallback"})
+  call ch_sendexpr(a:channel, l:request, {"callback": "hl#HighlightCallback"})
 endfunc
 
 func hl#TrySendRequestForThisBuffer()
   let l:win_id = win_getid()
   let l:buf_type = &filetype
 
-  call hl#TryConnect()
-  if count(g:hl_supported_types, l:buf_type) != 0 && ch_status(g:hl_server_channel) == "open"
-    call hl#SendRequest(l:win_id, l:buf_type)
+  if count(g:hl_supported_types, l:buf_type) != 0
+    let l:channel = hl#GetConnect()
+    if ch_status(l:channel) == "open"
+      call hl#SendRequest(l:win_id, l:buf_type, l:channel)
+    endif
   else
     call hl#ClearWinMatches(l:win_id)
   endif

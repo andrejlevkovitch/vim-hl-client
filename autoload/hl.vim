@@ -123,7 +123,8 @@ func hl#HighlightCallback(channel, msg)
   endif
 
   let l:win_id = a:msg.id
-  if win_getid() != l:win_id
+  let l:buf_name = a:msg.buf_name
+  if win_getid() != l:win_id || bufname("%") != l:buf_name
     return
   endif
 
@@ -175,7 +176,7 @@ func hl#SendRequest(win_id, buf_type, channel)
   let l:request["version"] =    "v1"
   let l:request["id"] =         a:win_id
   let l:request["buf_type"] =   a:buf_type
-  let l:request["buf_name"] =   buffer_name("%")
+  let l:request["buf_name"] =   bufname("%")
   let l:request["buf_body"] =   l:buf_body
   let l:request["additional_info"] = join(l:compile_flags, "\n")
 

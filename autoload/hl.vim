@@ -110,6 +110,10 @@ endfunc
 
 func hl#HighlightCallback(channel, msg)
   " check that request was processed properly
+  if a:msg["version"] != "v1"
+    g:hl_last_error = "invalid version of response: " .. a:msg["version"]
+  endif
+
   if a:msg.return_code != 0
     let g:hl_last_error = a:msg.error_message
 
@@ -168,6 +172,7 @@ func hl#SendRequest(win_id, buf_type, channel)
   let l:compile_flags = hl#GetCompilationFlags()
 
   let l:request = {} 
+  let l:request["version"] =    "v1"
   let l:request["id"] =         a:win_id
   let l:request["buf_type"] =   a:buf_type
   let l:request["buf_name"] =   buffer_name("%")

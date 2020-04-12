@@ -141,9 +141,6 @@ func hl#MissedMsgCallback(channel, msg)
 endfunc
 
 func hl#SetHighlight(win_id, tokens)
-  " at first clear all matches
-  call hl#ClearWinMatches(a:win_id)
-
   " and add new heighligth
   for [l:hl_group, l:locations] in items(a:tokens)
     " XXX We must be confident, that we have higlight for the group
@@ -185,6 +182,9 @@ func hl#HighlightCallback(channel, msg)
   if win_getid() != l:win_id || bufname("%") != l:buf_name
     return
   endif
+
+  " before set new highlight we need remove previous
+  call hl#ClearWinMatches(l:win_id)
 
   call hl#SetHighlight(l:win_id, a:msg.tokens)
 endfunc
@@ -230,6 +230,7 @@ func hl#TryHighlightThisBuffer()
     " try get values from cache
     let l:tokens = hl#CheckInCache(l:buf_name)
     if empty(l:tokens) == 0
+      call hl#ClearWinMatches(l:win_id)
       call hl#SetHighlight(l:win_id, l:tokens)
       return
     endif

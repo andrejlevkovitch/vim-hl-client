@@ -191,17 +191,27 @@ endfunc
 
 " return flags for current buffer as list
 func hl#GetCompilationFlags()
+  let l:flags = []
   let l:config_file = findfile(".color_coded", ".;")
   if empty(l:config_file) == 0
-    let l:flags = readfile(l:config_file)
+    let l:tmp_flags = readfile(l:config_file)
 
-    " also add current dir as include path
-    call add(l:flags, "-I" . expand("%:p:h"))
-
-    return l:flags
+    " some of -I flags can be relative, so we should set it as absolute
+    let l:config_path = fnamemodify(l:config_file, ":p:h")
+    for l:tmp_flag in l:tmp_flags
+      if match(l:tmp_flag, "^-I\\w") != -1 || match(l:tmp_flag, "^-I\./") != -1
+        let l:flag = substitute(l:tmp_flag, "^-I", "-I" .. l:config_path .. "/", "")
+        call add(l:flags, l:flag)
+      else
+        call add(l:flags, l:tmp_flag)
+      endif
+    endfor
   end
 
-  return []
+  " also add current dir as include path
+  call add(l:flags, "-I" .. expand("%:p:h"))
+
+  return l:flags
 endfunc
 
 func hl#SendRequest(win_id, buf_type, channel)

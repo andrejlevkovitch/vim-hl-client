@@ -256,11 +256,6 @@ func hl#TryHighlightThisBuffer()
 endfunc
 
 
-function! HLLastError()
-  echo g:hl_last_error
-endfunc
-
-
 " colors
 hi default Member         cterm=NONE ctermfg=147
 hi default Variable       cterm=NONE ctermfg=white

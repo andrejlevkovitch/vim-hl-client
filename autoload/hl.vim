@@ -48,7 +48,6 @@ let g:hl_group_to_hi_link = {
       \ "EnumConstantDecl"                    : "EnumConstant",
       \ 
       \ "Variable"                            : "Variable",
-      \ "VarDecl"                             : "Variable",
       \ "ParmDecl"                            : "Variable",
       \ "VariableRef"                         : "Variable",
       \ "NonTypeTemplateParameter"            : "Variable",

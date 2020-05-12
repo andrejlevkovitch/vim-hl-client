@@ -109,22 +109,21 @@ func hl#ClearWinMatches(win_id)
 endfunc
 
 
-" return nothing (0) if can not get cache key
+" return empty string if can not get key
 func hl#GetCacheKey(buf_name)
   " we use md5 of buffers as cache keys
   let input   = getbufline(a:buf_name, 1, "$")
   let md5sum  = system("md5sum", input)
-  if v:shell_error == 0
-    return md5sum
-  else
-    return
+  if v:shell_error != 0 " error
+    return ""
   endif
+
+  return md5sum
 endfunc
 
 func hl#CheckInCache(buf_name)
   if has_key(g:hl_cache, a:buf_name)
-    let l:cache_key = hl#GetCacheKey(a:buf_name)
-    if l:cache_key != 0 && l:cache_key == g:hl_cache[a:buf_name][0]
+    if hl#GetCacheKey(a:buf_name) == g:hl_cache[a:buf_name][0]
       return g:hl_cache[a:buf_name][1]
     else
       unlet g:hl_cache[a:buf_name] " invalidate cache
@@ -138,7 +137,7 @@ func hl#PutInCache(buf_name, tokens)
   " FIXME here is a problem with asynchronous callbacks, because md5 (which we
   " use as cache key) can change at the time when the tokens will be get
   let l:cache_key = hl#GetCacheKey(a:buf_name)
-  if l:cache_key != 0
+  if strlen(l:cache_key) != 0
     let g:hl_cache[a:buf_name] = [l:cache_key, a:tokens]
   endif
 endfunc

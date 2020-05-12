@@ -172,8 +172,8 @@ endfunc
 
 func hl#HighlightCallback(channel, msg)
   " check that request was processed properly
-  if a:msg["version"] != "v1"
-    g:hl_last_error = "invalid version of response: " .. a:msg["version"]
+  if a:msg.version != "v1"
+    let g:hl_last_error = "invalid version of response"
   endif
 
   if a:msg.return_code != 0

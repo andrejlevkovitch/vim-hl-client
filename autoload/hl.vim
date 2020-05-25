@@ -1,6 +1,7 @@
-let g:hl_server_addr      = "localhost:9173"
-let g:hl_supported_types  = ["cpp", "c"]
-let g:hl_last_error       = ""
+let g:hl_server_addr            = "localhost:9173"
+let g:hl_supported_types        = ["cpp", "c"]
+let g:hl_last_error             = ""
+let g:current_protocol_version  = "v1.1"
 
 " cache is a map with structure:
 " {
@@ -124,9 +125,9 @@ func hl#GetCacheKey(buf_name)
   return md5sum
 endfunc
 
-func hl#CheckInCache(buf_name)
+func hl#CheckInCache(buf_name, cache_key)
   if has_key(g:hl_cache, a:buf_name)
-    if hl#GetCacheKey(a:buf_name) == g:hl_cache[a:buf_name][0]
+    if a:cache_key == g:hl_cache[a:buf_name][0]
       return g:hl_cache[a:buf_name][1]
     else
       unlet g:hl_cache[a:buf_name] " invalidate cache
@@ -136,12 +137,9 @@ func hl#CheckInCache(buf_name)
   return {}
 endfunc
 
-func hl#PutInCache(buf_name, tokens)
-  " FIXME here is a problem with asynchronous callbacks, because md5 (which we
-  " use as cache key) can change at the time when the tokens will be get
-  let l:cache_key = hl#GetCacheKey(a:buf_name)
-  if strlen(l:cache_key) != 0
-    let g:hl_cache[a:buf_name] = [l:cache_key, a:tokens]
+func hl#PutInCache(buf_name, cache_key, tokens)
+  if strlen(a:cache_key) != 0
+    let g:hl_cache[a:buf_name] = [a:cache_key, a:tokens]
   endif
 endfunc
 
@@ -174,7 +172,7 @@ endfunc
 
 func hl#HighlightCallback(channel, msg)
   " check that request was processed properly
-  if a:msg.version != "v1"
+  if a:msg.version != g:current_protocol_version
     let g:hl_last_error = "invalid version of response"
   endif
 
@@ -186,14 +184,23 @@ func hl#HighlightCallback(channel, msg)
     end " otherwise try add highlight
   endif
 
-  let l:win_id = a:msg.id
-  let l:buf_name = a:msg.buf_name
-  call hl#PutInCache(l:buf_name, a:msg.tokens)
-  if win_getid() != l:win_id || bufname("%") != l:buf_name
+  let l:buf_name            = a:msg.buf_name
+  let l:message_control_sum = a:msg.id
+  let l:current_control_sum = hl#GetCacheKey(l:buf_name)
+  if l:current_control_sum == l:message_control_sum
+    call hl#PutInCache(l:buf_name, l:message_control_sum, a:msg.tokens)
+  else
+    " information already expired
+    return
+  endif
+
+  if bufname("%") != l:buf_name
+    " at this time we use another buffer
     return
   endif
 
   " before set new highlight we need remove previous
+  let l:win_id = win_getid()
   call hl#ClearWinMatches(l:win_id)
 
   call hl#SetHighlight(l:win_id, a:msg.tokens)
@@ -224,14 +231,14 @@ func hl#GetCompilationFlags()
   return l:flags
 endfunc
 
-func hl#SendRequest(win_id, buf_type, channel)
+func hl#SendRequest(cache_key, buf_type, channel)
   let l:buf_body = join(getline(1, "$"), "\n")
 
   let l:compile_flags = hl#GetCompilationFlags()
 
   let l:request = {} 
-  let l:request["version"]         =  "v1"
-  let l:request["id"]              =  a:win_id
+  let l:request["version"]         =  g:current_protocol_version
+  let l:request["id"]              =  a:cache_key " use as control field
   let l:request["buf_type"]        =  a:buf_type
   let l:request["buf_name"]        =  bufname("%")
   let l:request["buf_body"]        =  l:buf_body
@@ -248,7 +255,8 @@ func hl#TryHighlightThisBuffer()
 
   if count(g:hl_supported_types, l:buf_type) != 0
     " try get values from cache
-    let l:tokens = hl#CheckInCache(l:buf_name)
+    let l:cache_key = hl#GetCacheKey(l:buf_name)
+    let l:tokens    = hl#CheckInCache(l:buf_name, l:cache_key)
     if empty(l:tokens) == 0
       call hl#ClearWinMatches(l:win_id)
       call hl#SetHighlight(l:win_id, l:tokens)
@@ -258,7 +266,7 @@ func hl#TryHighlightThisBuffer()
     " send request to hl-server
     let l:channel = hl#GetConnect()
     if ch_status(l:channel) == "open"
-      call hl#SendRequest(l:win_id, l:buf_type, l:channel)
+      call hl#SendRequest(l:cache_key, l:buf_type, l:channel)
     endif
   else
     " otherwise we need clear mathces from previous buffer (if they exists)

@@ -47,11 +47,6 @@ let g:hl_group_to_hi_link = {
       \ "EnumConstant"                        : "EnumConstant",
       \ "EnumConstantDecl"                    : "EnumConstant",
       \ 
-      \ "Variable"                            : "Variable",
-      \ "ParmDecl"                            : "Variable",
-      \ "VariableRef"                         : "Variable",
-      \ "NonTypeTemplateParameter"            : "Variable",
-      \ 
       \ "MacroDefinition"                     : "Macro",
       \ "MacroInstantiation"                  : "Macro",
       \ "macro expansion"                     : "Macro",
@@ -85,6 +80,14 @@ let g:hl_group_to_hi_link = {
       \ "ObjCImplementationDecl"              : "Normal",
       \ "ObjCCategoryImplDecl"                : "Normal",
       \}
+        
+" XXX default highlighting for Varables are simple white color, so I don't see
+" reason for set this highlight by plugin. But if you need another highlighting
+" - just uncomment it and set what you want
+"     \ "Variable"                            : "Variable",
+"     \ "ParmDecl"                            : "Variable",
+"     \ "VariableRef"                         : "Variable",
+"     \ "NonTypeTemplateParameter"            : "Variable",
 
 
 func hl#GetConnect()

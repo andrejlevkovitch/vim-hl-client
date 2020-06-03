@@ -14,8 +14,13 @@ endif
 "  echohl None
 "endif
 
+func hl#TryHighlightNewBuffer()
+  call hl#ClearWinMatches(win_getid())
+  call hl#TryHighlightThisBuffer()
+endfunc
+
 augroup hl_callbacks
-  au BufEnter *               call hl#TryHighlightThisBuffer()
+  au BufEnter *               call hl#TryHighlightNewBuffer()
 
   au InsertLeave *            call hl#TryHighlightThisBuffer()
   au TextChanged *            call hl#TryHighlightThisBuffer()

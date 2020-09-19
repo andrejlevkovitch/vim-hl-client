@@ -6,3 +6,6 @@ Uses [.color_coded](https://github.com/rdnetto/YCM-Generator) file for specify c
 You need started [hl-server](https://github.com/andrejlevkovitch/hl-server) for using it.
 
 __use version protocol__: v1.1
+
+__TODO__
+Add autamatical start of `hl-server` after vim start.

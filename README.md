@@ -12,5 +12,19 @@ For run `hl-server` automaticly you need `vim 8` and [AsyncRun](https://github.c
 After compilation `hl-server` just add to your `.vimrc` file next string:
 
 ```vim
-au VimEnter * AsyncRun /path/to/hl-server/binary --threads=2
+let g:hl_server_binary  = "/path/to/hl-server/binary"
+```
+
+
+Also you can add next variables
+
+```vim
+" default is 'localhost:53827'
+let g:hl_server_addr    = "localhost:53827"
+
+" default is 3
+let g:hl_server_threads = 3
+
+" for debugging
+let g:hl_debug_file     = "/path/to/debug/file"
 ```

@@ -1,13 +1,13 @@
-let g:hl_server_addr            = "localhost:9173"
-let g:hl_supported_types        = ["cpp", "c"]
-let g:hl_last_error             = ""
-let g:current_protocol_version  = "v1.1"
+" variables
+let s:current_protocol_version  = "v1.1"
+let s:hl_last_error             = ""
+let s:hl_supported_types        = ["cpp", "c"]
 
 " cache is a map with structure:
 " {
 "   buf_name: [cache_key, tokens]
 " }
-let g:hl_cache            = {}
+let s:hl_cache            = {}
 
 let g:hl_group_to_hi_link = {
       \ "Namespace"                           : "Namespace",
@@ -91,6 +91,7 @@ let g:hl_group_to_hi_link = {
 "     \ "NonTypeTemplateParameter"            : "Variable",
 
 
+" one connection per window
 func hl#GetConnect()
   if exists("w:hl_server_channel") == 0 ||
         \ ch_status(w:hl_server_channel) != "open"
@@ -126,11 +127,11 @@ func hl#GetCacheKey(buf_name)
 endfunc
 
 func hl#CheckInCache(buf_name, cache_key)
-  if has_key(g:hl_cache, a:buf_name)
-    if a:cache_key == g:hl_cache[a:buf_name][0]
-      return g:hl_cache[a:buf_name][1]
+  if has_key(s:hl_cache, a:buf_name)
+    if a:cache_key == s:hl_cache[a:buf_name][0]
+      return s:hl_cache[a:buf_name][1]
     else
-      unlet g:hl_cache[a:buf_name] " invalidate cache
+      unlet s:hl_cache[a:buf_name] " invalidate cache
     endif
   endif
 
@@ -139,13 +140,13 @@ endfunc
 
 func hl#PutInCache(buf_name, cache_key, tokens)
   if strlen(a:cache_key) != 0
-    let g:hl_cache[a:buf_name] = [a:cache_key, a:tokens]
+    let s:hl_cache[a:buf_name] = [a:cache_key, a:tokens]
   endif
 endfunc
 
 
 func hl#MissedMsgCallback(channel, msg)
-  let g:hl_last_error = "missed message"
+  let s:hl_last_error = "missed message"
 endfunc
 
 func hl#SetHighlight(win_id, tokens)
@@ -172,12 +173,12 @@ endfunc
 
 func hl#HighlightCallback(channel, msg)
   " check that request was processed properly
-  if a:msg.version != g:current_protocol_version
-    let g:hl_last_error = "invalid version of response"
+  if a:msg.version != s:current_protocol_version
+    let s:hl_last_error = "invalid version of response"
   endif
 
   if a:msg.return_code != 0
-    let g:hl_last_error = a:msg.error_message
+    let s:hl_last_error = a:msg.error_message
 
     if empty(a:msg.tokens) == 1
       return
@@ -237,7 +238,7 @@ func hl#SendRequest(cache_key, buf_type, channel)
   let l:compile_flags = hl#GetCompilationFlags()
 
   let l:request = {} 
-  let l:request["version"]         =  g:current_protocol_version
+  let l:request["version"]         =  s:current_protocol_version
   let l:request["id"]              =  a:cache_key " use as control field
   let l:request["buf_type"]        =  a:buf_type
   let l:request["buf_name"]        =  bufname("%")
@@ -253,7 +254,7 @@ func hl#TryHighlightThisBuffer()
   let l:buf_type  = &filetype
   let l:buf_name  = bufname("%")
 
-  if count(g:hl_supported_types, l:buf_type) != 0
+  if count(s:hl_supported_types, l:buf_type) != 0
     " try get values from cache
     let l:cache_key = hl#GetCacheKey(l:buf_name)
     let l:tokens    = hl#CheckInCache(l:buf_name, l:cache_key)
@@ -274,6 +275,9 @@ func hl#TryHighlightThisBuffer()
   endif
 endfunc
 
+func hl#PrintLastError()
+  echo s:hl_last_error
+endfunc
 
 " colors
 hi default Member         cterm=NONE ctermfg=147

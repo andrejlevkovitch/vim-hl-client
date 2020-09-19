@@ -7,5 +7,10 @@ You need started [hl-server](https://github.com/andrejlevkovitch/hl-server) for 
 
 __use version protocol__: v1.1
 
-__TODO__
-Add autamatical start of `hl-server` after vim start.
+
+For run `hl-server` automaticly you need `vim 8` and [AsyncRun](https://github.com/skywind3000/asyncrun.vim) plugin.
+After compilation `hl-server` just add to your `.vimrc` file next string:
+
+```vim
+au VimEnter * AsyncRun /path/to/hl-server/binary --threads=2
+```

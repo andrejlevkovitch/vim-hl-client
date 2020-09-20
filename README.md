@@ -7,7 +7,7 @@ Uses [.color_coded](https://github.com/rdnetto/YCM-Generator) file for specify c
 __use version protocol__: v1.1
 
 
-# Requirements
+## Requirements
 
 - `vim 8` (not tested with less versions, but, I think, can works with `7.4` version)
 
@@ -16,7 +16,7 @@ __use version protocol__: v1.1
 - [AsyncRun](https://github.com/skywind3000/asyncrun.vim) (not required, need for automatical start of `hl-server`)
 
 
-# Installation
+## Installation
 
 1. Use [vundle](https://github.com/VundleVim/Vundle.vim) for install this plagin and [hl-server](https://github.com/andrejlevkovitch/hl-server)
 
@@ -43,7 +43,7 @@ let g:hl_server_binary  = "/path/to/hl-server/binary"
 This command starts your `hl-server` automaticly after starting `vim`
 
 
-# Additional settings
+## Additional settings
 
 - set address for server manually
 ```vim
@@ -73,7 +73,7 @@ call HLRestartServer()
 ```
 
 
-# Why should not use color-coded
+## Why should not use color-coded
 
 [color-coded](https://github.com/jeaye/color_coded) is similar plugin for semantic highlighting for `c/c++`.
 I used it previously, but it has several serious problems, like:
@@ -89,7 +89,7 @@ I used it previously, but it has several serious problems, like:
 - speed and memory - `color-coded` can use above 2Gb of memory and can work very slowly with big files
 
 
-# Why vim-hl-client is better then color-coded
+## Why vim-hl-client is better then color-coded
 
 - this plugin has client-server architecture: [vim-hl-client](https://github.com/andrejlevkovitch/vim-hl-client)
 as client and [hl-server](https://github.com/andrejlevkovitch/hl-server) as server. So vim don't need some extra

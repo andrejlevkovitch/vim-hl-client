@@ -1,6 +1,6 @@
 " variables
 let s:current_protocol_version  = "v1.1"
-let s:hl_last_error             = ""
+let s:hl_last_error             = "no errors"
 let s:hl_supported_types        = ["cpp", "c"]
 
 " cache is a map with structure:
@@ -9,7 +9,7 @@ let s:hl_supported_types        = ["cpp", "c"]
 " }
 let s:hl_cache            = {}
 
-let g:hl_group_to_hi_link = {
+let s:hl_group_to_hi_link = {
       \ "Namespace"                           : "Namespace",
       \ "NamespaceAlias"                      : "Namespace",
       \ "NamespaceRef"                        : "Namespace",
@@ -117,8 +117,8 @@ func hl#SetWinMatches(win_id, tokens)
   for [l:hl_group, l:locations] in items(a:tokens)
     " XXX We must be confident, that we have higlight for the group
     let l:hi_link = "" " for debug you can set some value here, for example Label
-    if has_key(g:hl_group_to_hi_link, l:hl_group)
-      let l:hi_link = g:hl_group_to_hi_link[l:hl_group]
+    if has_key(s:hl_group_to_hi_link, l:hl_group)
+      let l:hi_link = s:hl_group_to_hi_link[l:hl_group]
     endif
 
     if empty(l:hi_link) == 0
@@ -135,7 +135,7 @@ endfunc
 
 
 " return empty string if can not get key
-func hl#GetCacheKey(buffer)
+func hl#CalcCacheKey(buffer)
   " we use md5 of buffer as cache keys
   let l:md5sum  = system("md5sum", a:buffer)
   if v:shell_error != 0 " error
@@ -186,7 +186,7 @@ func hl#HighlightCallback(channel, msg)
   let l:message_control_sum = a:msg.id
 
   let l:buffer              = getbufline(l:buf_name, 1, "$")
-  let l:current_control_sum = hl#GetCacheKey(l:buffer)
+  let l:current_control_sum = hl#CalcCacheKey(l:buffer)
 
   if l:current_control_sum == l:message_control_sum
     call hl#PutInCache(l:buf_name, l:message_control_sum, a:msg.tokens)
@@ -256,7 +256,7 @@ func hl#TryHighlightThisBuffer()
 
   if count(s:hl_supported_types, l:buf_type) != 0
     let l:buffer    = getbufline(l:buf_name, 1, "$")
-    let l:cache_key = hl#GetCacheKey(l:buffer)
+    let l:cache_key = hl#CalcCacheKey(l:buffer)
 
     " try get values from cache
     let l:tokens    = hl#GetFromCache(l:buf_name, l:cache_key)
@@ -277,8 +277,8 @@ func hl#TryHighlightThisBuffer()
   endif
 endfunc
 
-func hl#PrintLastError()
-  echo s:hl_last_error
+func hl#GetLastError()
+  return s:hl_last_error
 endfunc
 
 " colors

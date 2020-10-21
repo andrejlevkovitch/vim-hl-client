@@ -2,6 +2,7 @@
 let s:current_protocol_version  = "v1.1"
 let s:hl_last_error             = "no errors"
 let s:hl_supported_types        = ["cpp", "c"]
+let s:prop_user_id              = 7936
 
 " cache is a map with structure:
 " {
@@ -91,6 +92,19 @@ let s:hl_group_to_hi_link = {
 "     \ "NonTypeTemplateParameter"            : "Variable",
 
 
+func hl#InitPropertieTypes()
+  let l:buf       = bufname("%")
+  let l:buf_type  = getbufvar(l:buf, "&filetype")
+
+  if count(s:hl_supported_types, l:buf_type) != 0
+    for l:type in keys(s:hl_group_to_hi_link)
+      let l:hi = s:hl_group_to_hi_link[l:type]
+      call prop_type_add(l:type, {"highlight": l:hi, "bufnr": l:buf})
+    endfor
+  endif
+endfunc
+
+
 " one connection per window
 func hl#GetConnect()
   if exists("w:hl_server_channel") == 0 ||
@@ -103,17 +117,14 @@ func hl#GetConnect()
 endfunc
 
 
-func hl#ClearWinMatches(win_id)
-  if exists("w:matches")
-    for l:match in w:matches
-      call matchdelete(l:match, a:win_id)
-    endfor
-  endif
-
-  let w:matches = []
+func hl#ClearTextProperties(buf)
+  call prop_remove({
+        \"bufnr" : a:buf,
+        \"id"    : s:prop_user_id
+        \})
 endfunc
 
-func hl#SetWinMatches(win_id, tokens)
+func hl#SetTextProperties(buf, tokens)
   for [l:hl_group, l:locations] in items(a:tokens)
     " XXX We must be confident, that we have higlight for the group
     let l:hi_link = "" " for debug you can set some value here, for example Label
@@ -123,11 +134,12 @@ func hl#SetWinMatches(win_id, tokens)
 
     if empty(l:hi_link) == 0
       for l:location in l:locations
-        let l:match = matchaddpos(l:hi_link, [l:location], 0, -1,
-              \ {"window": a:win_id})
-        if l:match != -1 " otherwise invalid match
-          call add(w:matches, l:match)
-        endif
+        call prop_add(l:location[0], l:location[1],
+              \{ "length"  : l:location[2],
+              \"type"    : l:hl_group,
+              \"bufnr"   : a:buf,
+              \"id"      : s:prop_user_id
+              \})
       endfor
     endif
   endfor
@@ -143,24 +155,6 @@ func hl#CalcCacheKey(buffer)
   endif
 
   return l:md5sum
-endfunc
-
-func hl#GetFromCache(buf_name, cache_key)
-  if has_key(s:hl_cache, a:buf_name)
-    if a:cache_key == s:hl_cache[a:buf_name][0]
-      return s:hl_cache[a:buf_name][1]
-    else
-      unlet s:hl_cache[a:buf_name] " invalidate cache
-    endif
-  endif
-
-  return {}
-endfunc
-
-func hl#PutInCache(buf_name, cache_key, tokens)
-  if strlen(a:cache_key) != 0
-    let s:hl_cache[a:buf_name] = [a:cache_key, a:tokens]
-  endif
 endfunc
 
 
@@ -188,24 +182,15 @@ func hl#HighlightCallback(channel, msg)
   let l:buffer              = getbufline(l:buf_name, 1, "$")
   let l:current_control_sum = hl#CalcCacheKey(l:buffer)
 
-  if l:current_control_sum == l:message_control_sum
-    call hl#PutInCache(l:buf_name, l:message_control_sum, a:msg.tokens)
-  else
+  if l:current_control_sum != l:message_control_sum
     " information already expired
     return
   endif
 
-  if bufname("%") != l:buf_name
-    " at this time we use another buffer
-    return
-  endif
-
-  " before set new highlight we need remove previous
-  let l:win_id = win_getid()
-  call hl#ClearWinMatches(l:win_id)
-
-  call hl#SetWinMatches(l:win_id, a:msg.tokens)
+  call hl#ClearTextProperties(l:buf_name)
+  call hl#SetTextProperties(l:buf_name, a:msg.tokens)
 endfunc
+
 
 " @return list of flags for current buffer
 func hl#GetCompilationFlags()
@@ -232,6 +217,7 @@ func hl#GetCompilationFlags()
   return l:flags
 endfunc
 
+
 " @param buffer list of buffer strings
 func hl#SendRequest(channel, buf_name, buffer, buf_type, cache_key)
   let l:compile_flags = join(hl#GetCompilationFlags(), "\n")
@@ -251,29 +237,18 @@ endfunc
 
 func hl#TryHighlightThisBuffer()
   let l:win_id    = win_getid()
-  let l:buf_type  = &filetype
   let l:buf_name  = bufname("%")
+  let l:buf_type  = getbufvar(l:buf_name, "&filetype")
 
   if count(s:hl_supported_types, l:buf_type) != 0
     let l:buffer    = getbufline(l:buf_name, 1, "$")
     let l:cache_key = hl#CalcCacheKey(l:buffer)
-
-    " try get values from cache
-    let l:tokens    = hl#GetFromCache(l:buf_name, l:cache_key)
-    if empty(l:tokens) == 0
-      call hl#ClearWinMatches(l:win_id)
-      call hl#SetWinMatches(l:win_id, l:tokens)
-      return
-    endif
+    let l:channel = hl#GetConnect()
 
     " send request to hl-server
-    let l:channel = hl#GetConnect()
     if ch_status(l:channel) == "open"
       call hl#SendRequest(l:channel, l:buf_name, l:buffer, l:buf_type, l:cache_key)
     endif
-  else
-    " otherwise we need clear mathces from previous buffer (if they exists)
-    call hl#ClearWinMatches(l:win_id)
   endif
 endfunc
 

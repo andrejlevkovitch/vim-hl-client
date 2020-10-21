@@ -3,12 +3,28 @@ let g:hl_server_addr            = get(g:, "hl_server_addr",     "localhost:53827
 let g:hl_server_threads         = get(g:, "hl_server_threads",  3)
 
 
-if has("channel") == 0
-  echohl WarningMsg
-  echo "vim-hl-server: has(\"channel\") == 0"
+if has("textprop") == 0
+  echohl ErrorMsg
+  echo v:version
+  echo "vim-hl-server: update vim to 8.2 or higher, or use branch win_matching"
   echohl None
   finish
 endif
+
+if has("channel") == 0
+  echohl ErrorMsg
+  echo "vim-hl-server: channels doesn't support"
+  echohl None
+  finish
+endif
+
+call system("md5sum --version")
+if v:shell_error != 0
+  echohl WarningMsg
+  echo "vim-hl-server: recommend to install md5sum"
+  echohl None
+endif
+
 
 if exists("*asyncrun#run") && exists("g:hl_server_binary")
   let s:hl_port = split(g:hl_server_addr, ":")[1]
@@ -30,22 +46,9 @@ if exists("*asyncrun#run") && exists("g:hl_server_binary")
   augroup END
 endif
 
-" TODO I don't know: print this message or not? The plugin can work without
-" caching, but buffer will tokenize after every switch
-"call system("md5sum --version")
-"if v:shell_error != 0
-"  echohl WarningMsg
-"  echo "vim-hl-server: required md5sum program"
-"  echohl None
-"endif
-
-func hl#TryHighlightNewBuffer()
-  call hl#ClearWinMatches(win_getid())
-  call hl#TryHighlightThisBuffer()
-endfunc
-
 augroup hl_callbacks
-  au BufEnter *               call hl#TryHighlightNewBuffer()
+  au BufReadPost *            call hl#InitPropertieTypes()
+  au BufReadPost *            call hl#TryHighlightThisBuffer()
 
   au InsertLeave *            call hl#TryHighlightThisBuffer()
   au TextChanged *            call hl#TryHighlightThisBuffer()

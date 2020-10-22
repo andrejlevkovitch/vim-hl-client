@@ -119,9 +119,9 @@ endfunc
 
 func hl#ClearTextProperties(buf)
   call prop_remove({
-        \"bufnr" : a:buf,
-        \"id"    : s:prop_user_id
-        \})
+        \ "bufnr" : a:buf,
+        \ "id"    : s:prop_user_id
+        \ })
 endfunc
 
 func hl#SetTextProperties(buf, tokens)
@@ -135,11 +135,12 @@ func hl#SetTextProperties(buf, tokens)
     if empty(l:hi_link) == 0
       for l:location in l:locations
         call prop_add(l:location[0], l:location[1],
-              \{ "length"  : l:location[2],
-              \"type"    : l:hl_group,
-              \"bufnr"   : a:buf,
-              \"id"      : s:prop_user_id
-              \})
+              \ {
+              \ "length"  : l:location[2],
+              \ "type"    : l:hl_group,
+              \ "bufnr"   : a:buf,
+              \ "id"      : s:prop_user_id
+              \ })
       endfor
     endif
   endfor

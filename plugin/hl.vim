@@ -1,6 +1,7 @@
 " variables
 let g:hl_server_addr            = get(g:, "hl_server_addr",     "localhost:53827")
 let g:hl_server_threads         = get(g:, "hl_server_threads",  3)
+let g:hl_debug_file             = get(g:, "hl_debug_file",      "/dev/null")
 
 
 if has("textprop") == 0
@@ -23,14 +24,16 @@ endif
 
 if has("job") && exists("g:hl_server_binary")
   let s:hl_port = split(g:hl_server_addr, ":")[1]
-  let s:command = ["bash", "-c", g:hl_server_binary, "--threads=" .. g:hl_server_threads, "--port=" .. s:hl_port]
-
-  if exists("g:hl_debug_file") != 0
-    let s:command += ["-v", "&>>" .. g:hl_debug_file]
-  endif
-
+  let s:command = [
+        \ "bash", "-c",
+        \ g:hl_server_binary, "-v",
+        \ "--threads=" .. g:hl_server_threads,
+        \ "--port=" .. s:hl_port,
+        \ "&>>" .. g:hl_debug_file, "</dev/null"
+        \ ]
 
   let s:hl_job = job_start(s:command)
+
 
   function! HLServerStart()
     if job_status(s:hl_job) == "run"

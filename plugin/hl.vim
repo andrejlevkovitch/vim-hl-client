@@ -18,13 +18,6 @@ if has("channel") == 0
   finish
 endif
 
-call system("md5sum --version")
-if v:shell_error != 0
-  echohl WarningMsg
-  echo "vim-hl-server: recommend to install md5sum"
-  echohl None
-endif
-
 
 if exists("*asyncrun#run") && exists("g:hl_server_binary")
   let s:hl_port = split(g:hl_server_addr, ":")[1]

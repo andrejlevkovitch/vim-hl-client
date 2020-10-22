@@ -146,15 +146,12 @@ func hl#SetTextProperties(buf, tokens)
 endfunc
 
 
-" return empty string if can not get key
-func hl#CalcCacheKey(buffer)
-  " we use md5 of buffer as cache keys
-  let l:md5sum  = system("md5sum", a:buffer)
-  if v:shell_error != 0 " error
-    return ""
-  endif
+" @return empty string if can not get key
+func hl#CalcControlSum(buffer_content)
+  let l:rows                = len(a:buffer_content)
+  let l:count               = len(join(a:buffer_content, "\n"))
 
-  return l:md5sum
+  return string(l:count) .. "*" .. string(l:rows)
 endfunc
 
 
@@ -179,8 +176,8 @@ func hl#HighlightCallback(channel, msg)
   let l:buf_name            = a:msg.buf_name
   let l:message_control_sum = a:msg.id
 
-  let l:buffer              = getbufline(l:buf_name, 1, "$")
-  let l:current_control_sum = hl#CalcCacheKey(l:buffer)
+  let l:buffer_content      = getbufline(l:buf_name, 1, "$")
+  let l:current_control_sum = hl#CalcControlSum(l:buffer_content)
 
   if l:current_control_sum != l:message_control_sum
     " information already expired
@@ -219,9 +216,9 @@ endfunc
 
 
 " @param buffer list of buffer strings
-func hl#SendRequest(channel, buf_name, buffer, buf_type, cache_key)
+func hl#SendRequest(channel, buf_name, buffer_content, buf_type, cache_key)
   let l:compile_flags = join(hl#GetCompilationFlags(), "\n")
-  let l:buf_body = join(a:buffer, "\n")
+  let l:buf_body = join(a:buffer_content, "\n")
 
   let l:request = {} 
   let l:request["version"]         =  s:current_protocol_version
@@ -241,13 +238,13 @@ func hl#TryHighlightThisBuffer()
   let l:buf_type  = getbufvar(l:buf_name, "&filetype")
 
   if count(s:hl_supported_types, l:buf_type) != 0
-    let l:buffer    = getbufline(l:buf_name, 1, "$")
-    let l:cache_key = hl#CalcCacheKey(l:buffer)
-    let l:channel = hl#GetConnect()
+    let l:buffer_content  = getbufline(l:buf_name, 1, "$")
+    let l:cache_key       = hl#CalcControlSum(l:buffer_content)
+    let l:channel         = hl#GetConnect()
 
     " send request to hl-server
     if ch_status(l:channel) == "open"
-      call hl#SendRequest(l:channel, l:buf_name, l:buffer, l:buf_type, l:cache_key)
+      call hl#SendRequest(l:channel, l:buf_name, l:buffer_content, l:buf_type, l:cache_key)
     endif
   endif
 endfunc

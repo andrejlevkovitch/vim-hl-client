@@ -6,37 +6,63 @@ let g:hl_server_threads         = get(g:, "hl_server_threads",  3)
 if has("textprop") == 0
   echohl ErrorMsg
   echo v:version
-  echo "vim-hl-server: update vim to 8.2 or higher, or use branch win_matching"
+  echo "vim-hl-server: current version of vim doesn't support textproperties"
+  echo "vim-hl-server: update vim to version 8.2 or higher, or use branch win_matching"
   echohl None
   finish
 endif
 
 if has("channel") == 0
   echohl ErrorMsg
-  echo "vim-hl-server: channels doesn't support"
+  echo "vim-hl-server: current version of vim doesn't support channels"
+  echo "vim-hl-server: update vim to version 8 or higher"
   echohl None
   finish
 endif
 
 
-if exists("*asyncrun#run") && exists("g:hl_server_binary")
+if has("job") && exists("g:hl_server_binary")
   let s:hl_port = split(g:hl_server_addr, ":")[1]
+  let s:command = ["bash", "-c", g:hl_server_binary, "--threads=" .. g:hl_server_threads, "--port=" .. s:hl_port]
 
-  function! HLStartServer()
-    if exists("g:hl_debug_file") == 0
-      call asyncrun#run("", {}, g:hl_server_binary .. " --threads=" .. g:hl_server_threads .. " --port=" .. s:hl_port)
-    else
-      call asyncrun#run("", {}, g:hl_server_binary .. " --threads=" .. g:hl_server_threads .. " --port=" .. s:hl_port .. " -v &>> " .. g:hl_debug_file)
+  if exists("g:hl_debug_file") != 0
+    let s:command += ["-v", "&>>" .. g:hl_debug_file]
+  endif
+
+
+  let s:hl_job = job_start(s:command)
+
+  function! HLServerStart()
+    if job_status(s:hl_job) == "run"
+      echohl WarningMsg
+      echo "hl-server already runing"
+      echohl None
+      return
     endif
+
+    let s:hl_job = job_start(s:command)
   endfunc
 
-  function! HLStopServer()
-    call asyncrun#stop("")
+  function! HLServerStop()
+    if job_status(s:hl_job) != "run"
+      echohl WarningMsg
+      echo "hl-server doesn't runing"
+      echohl None
+      return
+    endif
+
+    call job_stop(s:hl_job)
   endfunc
 
-  augroup hl_auto_run
-    au VimEnter * call HLStartServer()
-  augroup END
+  function! HLServerStatus()
+    echo "hl-server " .. job_status(s:hl_job)
+  endfunc
+else
+  echohl WarningMsg
+  echo "vim-hl-server: hl-server can't be run automaticly"
+  echo "vim-hl-server: update vim to version 8 or higher, or start the server manually"
+  echohl None
+  finish
 endif
 
 augroup hl_callbacks

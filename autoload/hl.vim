@@ -120,7 +120,8 @@ endfunc
 func hl#ClearTextProperties(buf)
   call prop_remove({
         \ "bufnr" : a:buf,
-        \ "id"    : s:prop_user_id
+        \ "id"    : s:prop_user_id,
+        \ "all"   : 1,
         \ })
 endfunc
 

@@ -119,3 +119,16 @@ but without highlighting.
 
 - `hl-server` absolutly independent from `vim`, so you can integrate it with
 other editors - just create you own `*-hl-client`
+
+
+## Bugs
+
+After updating plugin you can get notice that you should recompile [hl-server](http://github.com/andrejlevkovitch/hl-server).
+Highly recomended remove previous cmake configs and generate new.
+
+```bash
+cd build
+rm * -r
+cmake ..
+cmake --build . -- -j4
+```

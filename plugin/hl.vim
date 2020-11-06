@@ -30,11 +30,25 @@ if has("job") == 0
 endif
 
 if exists("g:hl_server_binary") == 0
-  echo WarningMsg
+  echohl WarningMsg
   echo "vim-hl-server: hl_server_binary doesn't set"
   echo "vim-hl-server: can't run hl-sever"
   echohl None
   finish
+endif
+
+
+" check version of hl-server
+let s:file_script_dir = expand("<sfile>:p:h")
+
+let s:hl_server_binary_verson = system(g:hl_server_binary .. " --version")
+let s:hl_server_repo_version = system('cd ' .. s:file_script_dir .. "/../third-party/hl-server && git describe --tags")
+
+if s:hl_server_binary_verson != s:hl_server_repo_version
+  echohl WarningMsg
+  echo "vim-hl-server: hl-server updated to " .. s:hl_server_repo_version
+  echo "vim-hl-server: you should recompile hl-server"
+  echohl None
 endif
 
 

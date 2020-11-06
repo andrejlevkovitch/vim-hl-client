@@ -1,0 +1,3 @@
+[submodule "third-party/hl-server"]
+	path = third-party/hl-server
+	url = http://github.com/andrejlevkovitch/hl-server

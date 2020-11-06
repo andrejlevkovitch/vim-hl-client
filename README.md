@@ -18,9 +18,12 @@ __use version protocol__: v1.1
 ## Installation
 
 1. Use [vundle](https://github.com/VundleVim/Vundle.vim) for install this plagin
-and [hl-server](https://github.com/andrejlevkovitch/hl-server)
 
-2. Compile `hl-server` by `cmake`. Just call:
+```vim
+Plugin 'andrejlevkovitch/vim-hl-client'
+```
+
+2. Compile [hl-server](third-party/hl-server) by `cmake`. Just call:
 
 ```sh
 mkdir build
@@ -60,7 +63,7 @@ let g:hl_debug_file     = "/path/to/debug/file"
 
 - for check some errors you can call:
 ```vim
-echo HLLastError()
+echo HLServerLastError()
 ```
 
 - for restarting `hl-server` you can run command:

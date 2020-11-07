@@ -42,7 +42,7 @@ endif
 let s:file_script_dir = expand("<sfile>:p:h")
 
 let s:hl_server_binary_verson = system(g:hl_server_binary .. " --version")
-let s:hl_server_repo_version = system('cd ' .. s:file_script_dir .. "/../third-party/hl-server && git describe --tags")
+let s:hl_server_repo_version = system('git --git-dir=' .. s:file_script_dir .. "/../third-party/hl-server/.git describe --tags")
 
 if s:hl_server_binary_verson != s:hl_server_repo_version
   echohl WarningMsg

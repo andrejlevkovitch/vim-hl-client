@@ -45,9 +45,9 @@ This command starts your `hl-server` automaticly after starting `vim`
 
 ## Additional settings
 
-- set address for server manually
+- set port for server manually
 ```vim
-let g:hl_server_addr    = "localhost:53827"
+let g:hl_server_port    = 53827
 ```
 
 - set capacity of threads for `hl-server`

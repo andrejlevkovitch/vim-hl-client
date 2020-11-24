@@ -1,7 +1,9 @@
 " variables
-let g:hl_server_addr            = get(g:, "hl_server_addr",     "localhost:53827")
+let g:hl_server_port            = get(g:, "hl_server_port",     53827)
 let g:hl_server_threads         = get(g:, "hl_server_threads",  3)
 let g:hl_debug_file             = get(g:, "hl_debug_file",      "/dev/null")
+
+let g:hl_server_addr = "localhost:" .. g:hl_server_port
 
 
 if has("textprop") == 0
@@ -52,12 +54,11 @@ if s:hl_server_binary_verson != s:hl_server_repo_version
 endif
 
 
-let s:hl_port = split(g:hl_server_addr, ":")[1]
 let s:command = [
       \ "bash", "-c",
       \ g:hl_server_binary, "-v",
       \ "--threads=" .. g:hl_server_threads,
-      \ "--port=" .. s:hl_port,
+      \ "--port=" .. g:hl_server_port,
       \ "&>>" .. g:hl_debug_file, "</dev/null"
       \ ]
 

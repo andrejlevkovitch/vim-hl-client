@@ -44,7 +44,7 @@ endif
 let s:file_script_dir = expand("<sfile>:p:h")
 
 let s:hl_server_binary_verson = system(g:hl_server_binary . " --version")
-let s:hl_server_repo_version = system('git --git-dir=' . s:file_script_dir . "/../third-party/hl-server/.git describe --tags")
+let s:hl_server_repo_version  = system('git --git-dir=' . s:file_script_dir . "/../third-party/hl-server/.git describe --tags")
 
 if s:hl_server_binary_verson != s:hl_server_repo_version
   echohl WarningMsg
@@ -55,16 +55,20 @@ endif
 
 
 let s:command = [
-      \ "bash", "-c",
-      \ g:hl_server_binary,
-      \ "--verbose",
-      \ "--threads="  . g:hl_server_threads,
-      \ "--port="     . g:hl_server_port,
-      \ "&>>"         . g:hl_debug_file,
-      \ "</dev/null"
+      \ "sh", "-c",
+      \ g:hl_server_binary  . 
+      \ " --verbose"        .
+      \ " --threads="       . g:hl_server_threads .
+      \ " --port="          . g:hl_server_port
       \ ]
 
-let s:hl_job = job_start(s:command)
+let s:hl_job = job_start(s:command, {
+      \ "in_io": "null",
+      \ "out_io": "file",
+      \ "err_io": "file",
+      \ "out_name": g:hl_debug_file,
+      \ "err_name": g:hl_debug_file,
+      \})
 
 
 function! HLServerStart()

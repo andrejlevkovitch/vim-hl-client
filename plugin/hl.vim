@@ -3,7 +3,7 @@ let g:hl_server_port            = get(g:, "hl_server_port",     53827)
 let g:hl_server_threads         = get(g:, "hl_server_threads",  3)
 let g:hl_debug_file             = get(g:, "hl_debug_file",      "/dev/null")
 
-let g:hl_server_addr = "localhost:" .. g:hl_server_port
+let g:hl_server_addr = "localhost:" . g:hl_server_port
 
 
 if has("textprop") == 0

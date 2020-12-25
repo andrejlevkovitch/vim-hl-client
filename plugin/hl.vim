@@ -3,8 +3,6 @@ let g:hl_server_port            = get(g:, "hl_server_port",     53827)
 let g:hl_server_threads         = get(g:, "hl_server_threads",  3)
 let g:hl_debug_file             = get(g:, "hl_debug_file",      "/dev/null")
 
-let g:hl_server_addr = "localhost:" . g:hl_server_port
-
 
 if has("textprop") == 0
   echohl ErrorMsg
@@ -69,6 +67,16 @@ let s:hl_job = job_start(s:command, {
       \ "out_name": g:hl_debug_file,
       \ "err_name": g:hl_debug_file,
       \})
+
+
+" one connection per window
+func hl#GetConnect()
+  let w:hl_server_channel = get(w:, "hl_server_channel",
+        \ ch_open("localhost:" . g:hl_server_port,
+                \ {"mode": "json", "callback": "hl#MissedMsgCallback"}))
+
+  return w:hl_server_channel
+endfunc
 
 
 function! HLServerStart()

@@ -132,3 +132,15 @@ rm * -r
 cmake ..
 cmake --build . -- -j4
 ```
+
+
+Also note, that debug file truncate every time when new instance of vim raised.
+So, if you set `g:hl_debug_file` like a static file, then you may have a problem
+with save it, or even reading (you can't open it by new instance of vim, because
+it will be trancated before opening). So highly recomended set debug file as:
+
+```vim
+let g:hl_debug_file = "/path/to/file" . localtime()
+```
+
+In this case every instance of vim will has your own debug file

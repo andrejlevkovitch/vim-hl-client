@@ -52,7 +52,7 @@ if s:hl_server_binary_verson != s:hl_server_repo_version
 endif
 
 
-let s:command = [
+let s:hl_server_start_command = [
       \ "sh", "-c",
       \ g:hl_server_binary  . 
       \ " --verbose"        .
@@ -60,13 +60,17 @@ let s:command = [
       \ " --port="          . g:hl_server_port
       \ ]
 
-let s:hl_job = job_start(s:command, {
-      \ "in_io": "null",
-      \ "out_io": "file",
-      \ "err_io": "file",
+" XXX in case of usage *_io as file option, then every job start truncate
+" log file. See E920
+let s:hl_server_job_options = {
+      \ "in_io"   : "null",
+      \ "out_io"  : "file",
+      \ "err_io"  : "file",
       \ "out_name": g:hl_debug_file,
       \ "err_name": g:hl_debug_file,
-      \})
+      \}
+
+let s:hl_job = job_start(s:hl_server_start_command, s:hl_server_job_options)
 
 
 " one connection per window
@@ -87,7 +91,7 @@ function! HLServerStart()
     return
   endif
 
-  let s:hl_job = job_start(s:command)
+  let s:hl_job = job_start(s:hl_server_start_command, s:hl_server_job_options)
 endfunc
 
 function! HLServerStop()

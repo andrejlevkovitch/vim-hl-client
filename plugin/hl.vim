@@ -43,12 +43,12 @@ endif
 " check version of hl-server
 let s:file_script_dir = expand("<sfile>:p:h")
 
-let s:hl_server_binary_verson = system(g:hl_server_binary .. " --version")
-let s:hl_server_repo_version = system('git --git-dir=' .. s:file_script_dir .. "/../third-party/hl-server/.git describe --tags")
+let s:hl_server_binary_verson = system(g:hl_server_binary . " --version")
+let s:hl_server_repo_version = system('git --git-dir=' . s:file_script_dir . "/../third-party/hl-server/.git describe --tags")
 
 if s:hl_server_binary_verson != s:hl_server_repo_version
   echohl WarningMsg
-  echo "vim-hl-server: hl-server updated to " .. s:hl_server_repo_version
+  echo "vim-hl-server: hl-server updated to " . s:hl_server_repo_version
   echo "vim-hl-server: you should recompile hl-server"
   echohl None
 endif
@@ -56,10 +56,12 @@ endif
 
 let s:command = [
       \ "bash", "-c",
-      \ g:hl_server_binary, "-v",
-      \ "--threads=" .. g:hl_server_threads,
-      \ "--port=" .. g:hl_server_port,
-      \ "&>>" .. g:hl_debug_file, "</dev/null"
+      \ g:hl_server_binary,
+      \ "--verbose",
+      \ "--threads="  . g:hl_server_threads,
+      \ "--port="     . g:hl_server_port,
+      \ "&>>"         . g:hl_debug_file,
+      \ "</dev/null"
       \ ]
 
 let s:hl_job = job_start(s:command)
@@ -88,7 +90,7 @@ function! HLServerStop()
 endfunc
 
 function! HLServerStatus()
-  echo "hl-server " .. job_status(s:hl_job)
+  echo "hl-server " . job_status(s:hl_job)
 endfunc
 
 augroup hl_callbacks

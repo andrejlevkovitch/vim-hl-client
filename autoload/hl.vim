@@ -153,7 +153,7 @@ func hl#CalcControlSum(buffer_content)
   let l:rows                = len(a:buffer_content)
   let l:count               = len(join(a:buffer_content, "\n"))
 
-  return string(l:count) .. "*" .. string(l:rows)
+  return string(l:count) . "*" . string(l:rows)
 endfunc
 
 
@@ -202,7 +202,7 @@ func hl#GetCompilationFlags()
     let l:config_path = fnamemodify(l:config_file, ":p:h")
     for l:tmp_flag in l:tmp_flags
       if match(l:tmp_flag, "^-I\\w") != -1 || match(l:tmp_flag, "^-I\./") != -1
-        let l:flag = substitute(l:tmp_flag, "^-I", "-I" .. l:config_path .. "/", "")
+        let l:flag = substitute(l:tmp_flag, "^-I", "-I" . l:config_path . "/", "")
         call add(l:flags, l:flag)
       else
         call add(l:flags, l:tmp_flag)
@@ -211,7 +211,7 @@ func hl#GetCompilationFlags()
   end
 
   " also add current dir as include path
-  call add(l:flags, "-I" .. expand("%:p:h"))
+  call add(l:flags, "-I" . expand("%:p:h"))
 
   return l:flags
 endfunc

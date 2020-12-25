@@ -57,18 +57,24 @@ endif
 let s:command = [
       \ "sh", "-c",
       \ g:hl_server_binary  . 
-      \ " --verbose"        .
-      \ " --threads="       . g:hl_server_threads .
-      \ " --port="          . g:hl_server_port
+      \ " --verbose"
       \ ]
 
 let s:hl_job = job_start(s:command, {
-      \ "in_io": "null",
-      \ "out_io": "file",
+      \ "in_io": "pipe",
+      \ "out_io": "pipe",
       \ "err_io": "file",
-      \ "out_name": g:hl_debug_file,
       \ "err_name": g:hl_debug_file,
       \})
+
+
+" getting channel to the job
+let s:hl_server_channel = job_getchannel(s:hl_job)
+call ch_setoptions(s:hl_server_channel, {"mode": "json", "callback": "hl#MissedMsgCallback"})
+
+func hl#GetConnect()
+  return s:hl_server_channel
+endfunc
 
 
 function! HLServerStart()

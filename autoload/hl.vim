@@ -105,18 +105,6 @@ func hl#InitPropertieTypes()
 endfunc
 
 
-" one connection per window
-func hl#GetConnect()
-  if exists("w:hl_server_channel") == 0 ||
-        \ ch_status(w:hl_server_channel) != "open"
-    let w:hl_server_channel = ch_open(g:hl_server_addr,
-          \ {"mode": "json", "callback": "hl#MissedMsgCallback"})
-  endif
-
-  return w:hl_server_channel
-endfunc
-
-
 func hl#ClearTextProperties(buf)
   call prop_remove({
         \ "bufnr" : a:buf,

@@ -75,9 +75,12 @@ let s:hl_job = job_start(s:hl_server_start_command, s:hl_server_job_options)
 
 " one connection per window
 func hl#GetConnect()
-  let w:hl_server_channel = get(w:, "hl_server_channel",
-        \ ch_open("localhost:" . g:hl_server_port,
-                \ {"mode": "json", "callback": "hl#MissedMsgCallback"}))
+  if exists("w:hl_server_channel") == 0 ||
+        \ ch_status(w:hl_server_channel) != "open"
+    let w:hl_server_channel = ch_open(
+          \"localhost:" . g:hl_server_port,
+          \ {"mode": "json", "callback": "hl#MissedMsgCallback"})
+  endif
 
   return w:hl_server_channel
 endfunc

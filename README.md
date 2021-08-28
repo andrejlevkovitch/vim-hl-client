@@ -28,7 +28,7 @@ Plugin 'andrejlevkovitch/vim-hl-client'
 ```sh
 mkdir build
 cd build
-cmake ..
+cmake ../third-party/hl-server
 cmake --build .
 ```
 

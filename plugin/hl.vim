@@ -1,6 +1,5 @@
 " variables
 let g:hl_server_port            = get(g:, "hl_server_port",     53827)
-let g:hl_server_threads         = get(g:, "hl_server_threads",  3)
 let g:hl_debug_file             = get(g:, "hl_debug_file",      "/dev/null")
 
 
@@ -56,7 +55,6 @@ let s:hl_server_start_command = [
       \ "sh", "-c",
       \ g:hl_server_binary  . 
       \ " --verbose"        .
-      \ " --threads="       . g:hl_server_threads .
       \ " --port="          . g:hl_server_port
       \ ]
 

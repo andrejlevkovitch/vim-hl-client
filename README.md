@@ -50,11 +50,6 @@ This command starts your `hl-server` automaticly after starting `vim`
 let g:hl_server_port    = 53827
 ```
 
-- set capacity of threads for `hl-server`
-```vim
-let g:hl_server_threads = 3
-```
-
 - debug mode for `hl-server`. All logs will write in debug file.
 ```vim
 let g:hl_debug_file     = "/path/to/debug/file"

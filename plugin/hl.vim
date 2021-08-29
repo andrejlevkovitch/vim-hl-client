@@ -111,6 +111,8 @@ function! HLServerStatus()
 endfunc
 
 augroup hl_callbacks
+  au BufNewFile  *            call hl#InitPropertieTypes()
+
   au BufReadPost *            call hl#InitPropertieTypes()
   au BufReadPost *            call hl#TryHighlightThisBuffer()
 

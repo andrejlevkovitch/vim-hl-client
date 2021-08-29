@@ -36,6 +36,9 @@ cmake ../third-party/hl-server
 cmake --build .
 ```
 
+In case of some some problems with cmake configuration or compilation, please
+look into [hl-server README](https://github.com/andrejlevkovitch/hl-server)
+
 __NOTE__ if you have error from cmake like: _directory third-party/hl-server
 doesn't contain CMakeLists.txt_ - then you should call
 ```sh

@@ -17,6 +17,8 @@ __use version protocol__: v1.1
 
 ## Installation
 
+0. Install `cmake`, `libclang-dev` and `llvm-dev` packages
+
 1. Use [vundle](https://github.com/VundleVim/Vundle.vim) for install this plagin
 
 ```vim
@@ -32,7 +34,7 @@ cmake ../third-party/hl-server
 cmake --build .
 ```
 
-__NOTE__ that you need installed `boost`
+__NOTE__ for not `linux` system you can try use `boost` branch of [hl-server](third-party/hl-server)
 
 3. Add to your `.vimrc` file next line:
 

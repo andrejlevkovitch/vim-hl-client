@@ -141,7 +141,19 @@ func hl#CalcControlSum(buffer_content)
   let l:rows                = len(a:buffer_content)
   let l:count               = len(join(a:buffer_content, "\n"))
 
-  return string(l:count) . "*" . string(l:rows)
+  let l:operation_flag      = 0
+  let l:line_width_control  = 0
+  for l:line in a:buffer_content
+    if l:operation_flag == 0
+      let l:line_width_control += len(l:line)
+      let l:operation_flag = 1
+    else
+      let l:line_width_control -= len(l:line)
+      let l:operation_flag = 0
+    endif
+  endfor
+
+  return string(l:count) . "*" . string(l:rows) . "*" . string(l:line_width_control)
 endfunc
 
 

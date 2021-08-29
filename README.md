@@ -19,11 +19,13 @@ __use version protocol__: v1.1
 
 0. Install `cmake`, `libclang-dev` and `llvm-dev` packages
 
-1. Use [vundle](https://github.com/VundleVim/Vundle.vim) for install this plagin
-
+1. Use [vundle](https://github.com/VundleVim/Vundle.vim) for install this plagin.
+Add to your `.vimrc` next line:
 ```vim
 Plugin 'andrejlevkovitch/vim-hl-client'
 ```
+
+and call `:PluginUpdate` in vim command line
 
 2. Compile [hl-server](third-party/hl-server) by `cmake`. Just call:
 
@@ -34,7 +36,14 @@ cmake ../third-party/hl-server
 cmake --build .
 ```
 
-__NOTE__ for not `linux` system you can try use `boost` branch of [hl-server](third-party/hl-server)
+__NOTE__ if you have error from cmake like: _directory third-party/hl-server
+doesn't contain CMakeLists.txt_ - then you should call
+```sh
+git submodule update --init --recursive
+```
+
+__NOTE__ for not `linux` system you can try use `boost` branch of [hl-server](third-party/hl-server),
+or checkout to `v1.0`. Anyway the program doesn't tested on other systems
 
 3. Add to your `.vimrc` file next line:
 

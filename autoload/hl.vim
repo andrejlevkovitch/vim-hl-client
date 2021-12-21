@@ -1,7 +1,7 @@
 " variables
 let s:current_protocol_version  = "v1.1"
 let s:hl_last_error             = "no errors"
-let s:hl_supported_types        = ["cpp", "c"]
+let s:hl_supported_types        = ["cpp", "c", "go"]
 let s:prop_user_id              = 7936
 
 " cache is a map with structure:

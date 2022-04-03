@@ -1,7 +1,8 @@
 # vim-hl-client: semantic highlighting for c/c++ in vim
 
 Fast asynchronous vim client for hl-server.
-Provide semantic highlighting for `c` and `cpp` (based on `clang`).
+Provide semantic highlighting for `c`, `cpp` (based on `clang`) and go (based on
+go ast).
 Uses [.color_coded](https://github.com/rdnetto/YCM-Generator) file for specify
 compile flags for analizing.
 
@@ -13,6 +14,8 @@ __use version protocol__: v1.1
 - `vim 8.2` (can be used `vim 8` with branch `win-matching`)
 
 - [hl-server](https://github.com/andrejlevkovitch/hl-server)
+
+- `go` (optional)
 
 
 ## Installation
@@ -30,20 +33,16 @@ and call `:PluginUpdate` in vim command line
 2. Compile [hl-server](third-party/hl-server) by `cmake`. Just call:
 
 ```sh
-mkdir build
-cd build
-cmake ../third-party/hl-server
-cmake --build .
+make clean
+make build
 ```
+
+At the end this command will print path to server binary file that you should
+put in your `.vimrc` file (see bellow)
 
 In case of some some problems with cmake configuration or compilation, please
 look into [hl-server README](https://github.com/andrejlevkovitch/hl-server)
 
-__NOTE__ if you have error from cmake like: _directory third-party/hl-server
-doesn't contain CMakeLists.txt_ - then you should call
-```sh
-git submodule update --init --recursive
-```
 
 __NOTE__ for not `linux` system you can try use `boost` branch of [hl-server](third-party/hl-server),
 or checkout to `v1.0`. Anyway the program doesn't tested on other systems

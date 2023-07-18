@@ -1,5 +1,8 @@
 # vim-hl-client: semantic highlighting for c/c++ in vim
 
+__NOTE:__ since [YouCompleteMe](https://github.com/ycm-core/YouCompleteMe) started
+supporting highlighting, that project is abandoned and no longer supported.
+
 Fast asynchronous vim client for hl-server.
 Provide semantic highlighting for `c`, `cpp` (based on `clang`) and go (based on
 go ast).
